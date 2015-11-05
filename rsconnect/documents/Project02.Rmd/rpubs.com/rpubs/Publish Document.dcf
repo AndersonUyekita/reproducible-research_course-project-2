@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/120727/d2b13c9187de4b8ab10b56a0be1a5a35
+url: http://rpubs.com/AndersonUyekita/120727
+when: 1445754618.88877
