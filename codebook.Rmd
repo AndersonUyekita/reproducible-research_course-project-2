@@ -1,0 +1,52 @@
+---
+title: '`Course Project 2` Reproducible Research'
+author: '`r if(knitr::is_html_output()) {"&#x1f468;&#x1F3FB;&#x200d;&#x1f4bb; Anderson H Uyekita"} else {NULL}`'
+output:
+  github_document: default
+params:
+  author: "Anderson H Uyekita"
+  course: "Reproducible Research"
+  course_url: "https://www.coursera.org/learn/reproducible-research"
+  specialization: "Data Science: Foundations using R Specialization"
+  specialization_url: "https://www.coursera.org/specializations/data-science-foundations-r"
+  instructor: "Roger D Peng"
+  course_start: !r lubridate::ymd("2022/06/24")
+  course_finish: !r lubridate::today()
+  week: "Week 4"
+  slug: 'Week%204'
+  rpubs: 'https://rpubs.com/AndersonUyekita/course-project-2_reproducible-research'
+  project_repo: 'https://github.com/AndersonUyekita/reproducible-research_course-project-2'
+  codebook: 'https://github.com/AndersonUyekita/reproducible-research_course-project-2/blob/master/codebook.md'
+  instructions: 'https://github.com/AndersonUyekita/reproducible-research_course-project-2/blob/master/instructions.md'
+always_allow_html: true
+---
+
+`r if(!knitr::is_html_output()) {sprintf(fmt = "* &#x1f468;&#x1F3FB;&#x200d;&#x1f4bb; Author: %s", params$author)}`
+`r sprintf(fmt = "* &#x1f4da; Specialization: [%s](%s){target='_blank' rel='noopener'}", params$specialization, params$specialization_url)`
+`r sprintf(fmt = "* &#x1f4d6; Course: [%s](%s){target='_blank' rel='noopener'}", params$course, params$course_url)`
+    `r sprintf(fmt = "* &#x1F9D1;&#x200d;&#x1F3EB; Instructor: %s", params$instructor)`
+`r sprintf(fmt = "* &#x1F4C6; %s", params$week)`
+    `r sprintf(fmt = "* &#x1F6A6; Start: %s", format(params$course_start, "%A, %d %B %Y"))`
+    `r sprintf(fmt = "* &#x1F3C1; Finish: %s", format(params$course_finish, "%A, %d %B %Y"))`
+`r if(!knitr::is_html_output()) {sprintf(fmt = "* &#x1F30E; Rpubs: [Interactive Document](%s)", params$rpubs)}else{sprintf(fmt = "* &#x1F4E6; Github Repository: [Static Document](%s){target='_blank' rel='noopener'}", params$project_repo)}`
+`r if(!knitr::is_html_output()) {sprintf(fmt = "* &#x1F4CB; Instructions: [Project Instructions](%s)", "./instructions.md")}else{sprintf(fmt = "* &#x1F4CB; Instructions: [Project Instructions](%s){target='_blank' rel='noopener'}", params$instructions)}`
+`r if(!knitr::is_html_output()) {sprintf(fmt = "* &#x1F4C4; README: [README.md](%s)", "./README.md")}else{sprintf(fmt = "* &#x1F4C4; README: [README.md](%s){target='_blank' rel='noopener'}", params$project_repo)}`
+
+--------------------------------------------------------------------------------
+
+## Codebook
+
+
+
+
+### 1. Requirements
+
+### 2. Scripts
+
+#### 2.1. README
+
+### 3. Output and Input Details
+
+#### 3.1. Inputs
+
+#### 3.2. Output
