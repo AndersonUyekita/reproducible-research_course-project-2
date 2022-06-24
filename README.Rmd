@@ -45,11 +45,9 @@ library(rmarkdown)
 
 ### Sinopsis
 
-
+This report try to explore the storm database from [U.S. National Oceanic and Atmospheric Administration's (NOAA)](http://www.noaa.gov). This study has a brief analysis of: Economics consequences due to storm, hurricane, and similars and which kind of weather situations has the worse consequence to the population; Population Health due to those extreme weather situations and which disasters has the most impact in the population health. As a results, we realized the tornado is the most harmful and the flood has the greatest economic consequences to the population.
 
 --------------------------------------------------------------------------------
-
-This report try to explore the storm database from [U.S. National Oceanic and Atmospheric Administration's (NOAA)](http://www.noaa.gov). This study has a brief analysis of: Economics consequences due to storm, hurricane, and similars and which kind of weather situations has the worse consequence to the population; Population Health due to those extreme weather situations and which disasters has the most impact in the population health. As a results, we realized the tornado is the most harmful and the flood has the greatest economic consequences to the population.
 
 ## Loading and Processing the Raw Data
 
