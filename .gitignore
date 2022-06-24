@@ -50,4 +50,4 @@ vignettes/*.pdf
 # $git status --ignored
 #
 # Removing all cache folder.
-Week ?/getting_and_cleaning_data_quiz_?_cache/**
+Week ?/quiz-?_reproducible-research_cache/**
