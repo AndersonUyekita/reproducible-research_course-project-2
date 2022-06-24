@@ -16,43 +16,23 @@
 
 ------------------------------------------------------------------------
 
-# Impact of Weather Events on Public Health and Economics
+## Impact of Weather Events on Public Health and Economics
 
-## Sinopsis
+### Sinopsis
 
-This report try to explore the storm database from [U.S. National
-Oceanic and Atmospheric Administration’s (NOAA)](%5B3%5D). This study
-has a brief analysis of: Economics consequences due to storm, hurricane,
-and similars and which kind of weather situations has the worse
-consequence to the population; Population Health due to those extreme
-weather situations and which disasters has the most impact in the
-population health. As a results, we realized the tornado is the most
+Course Project 2 explore the storm database from [U.S. National Oceanic
+and Atmospheric Administration’s (NOAA)](http://www.noaa.gov), and aims
+to develop a brief data analysis about Economics consequences due to
+storm, hurricane, and similar and which kind of weather situations has
+the worse consequence to the population; Population Health due to those
+extreme weather situations and which disasters has the most impact in
+the population health. As a results, we realized the tornado is the most
 harmful and the flood has the greatest economic consequences to the
 population.
 
-## Loading and Processing the Raw Data
+------------------------------------------------------------------------
 
-From the [U.S. National Oceanic and Atmospheric Administration’s
-(NOAA)](http://www.noaa.gov) storm database we obtained data of storms
-and weather events in the United States, including when and where they
-occur, as well as estimates of any fatalities, injuries, and property
-damage. We obtained the files between the years [1950 and
-2011](%5B2%5D).
-
-``` r
-# 1. Create a data directory
-if(!base::file.exists("data")) {
-    base::dir.create("data")
-}
-
-# 2. Download files and store it in data directory.
-if(!base::file.exists("./data/repdata_data_StormData.csv.bz2")){
-    utils::download.file(url = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
-                         destfile = "./data/repdata_data_StormData.csv.bz2")
-}
-```
-
-### Required Packages and Settings
+#### Requirements and Settings
 
 Requirements necessary to reproduce this analysis:
 
@@ -67,7 +47,31 @@ Sys.setlocale("LC_ALL","English")
 
     ## [1] "LC_COLLATE=English_United States.1252;LC_CTYPE=English_United States.1252;LC_MONETARY=English_United States.1252;LC_NUMERIC=C;LC_TIME=English_United States.1252"
 
-### Data Processing (Reading data from 1950 to 2011)
+## 1. Data Processing
+
+From the [U.S. National Oceanic and Atmospheric Administration’s
+(NOAA)](http://www.noaa.gov) storm database we obtained data of storms
+and weather events in the United States, including when and where they
+occur, as well as estimates of any fatalities, injuries, and property
+damage. We obtained the files between the years [1950 and
+2011](%5B2%5D).
+
+### 1.1. Loading.
+
+``` r
+# 1. Create a data directory
+if(!base::file.exists("data")) {
+    base::dir.create("data")
+}
+
+# 2. Download files and store it in data directory.
+if(!base::file.exists("./data/repdata_data_StormData.csv.bz2")){
+    utils::download.file(url = "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
+                         destfile = "./data/repdata_data_StormData.csv.bz2")
+}
+```
+
+### 1.2. Data Processing (Reading data from 1950 to 2011)
 
 First of all, we read the data from the raw `.csv` file included in the
 `bz2` archive. The data is a regular delimited file were fileds are
@@ -95,16 +99,16 @@ The first 6 lines of the raw data set:
 head(tbl_raw_data,6)
 ```
 
-    ## # A tibble: 6 × 37
+    ## # A tibble: 6 x 37
     ##   STATE__ BGN_DATE   BGN_TIME TIME_ZONE COUNTY COUNTYNAME STATE EVTYPE BGN_RANGE
     ##     <dbl> <chr>      <chr>    <chr>      <dbl> <chr>      <chr> <chr>      <dbl>
-    ## 1       1 4/18/1950… 0130     CST           97 MOBILE     AL    TORNA…         0
-    ## 2       1 4/18/1950… 0145     CST            3 BALDWIN    AL    TORNA…         0
-    ## 3       1 2/20/1951… 1600     CST           57 FAYETTE    AL    TORNA…         0
-    ## 4       1 6/8/1951 … 0900     CST           89 MADISON    AL    TORNA…         0
-    ## 5       1 11/15/195… 1500     CST           43 CULLMAN    AL    TORNA…         0
-    ## 6       1 11/15/195… 2000     CST           77 LAUDERDALE AL    TORNA…         0
-    ## # … with 28 more variables: BGN_AZI <chr>, BGN_LOCATI <chr>, END_DATE <chr>,
+    ## 1       1 4/18/1950~ 0130     CST           97 MOBILE     AL    TORNA~         0
+    ## 2       1 4/18/1950~ 0145     CST            3 BALDWIN    AL    TORNA~         0
+    ## 3       1 2/20/1951~ 1600     CST           57 FAYETTE    AL    TORNA~         0
+    ## 4       1 6/8/1951 ~ 0900     CST           89 MADISON    AL    TORNA~         0
+    ## 5       1 11/15/195~ 1500     CST           43 CULLMAN    AL    TORNA~         0
+    ## 6       1 11/15/195~ 2000     CST           77 LAUDERDALE AL    TORNA~         0
+    ## # ... with 28 more variables: BGN_AZI <chr>, BGN_LOCATI <chr>, END_DATE <chr>,
     ## #   END_TIME <chr>, COUNTY_END <dbl>, COUNTYENDN <lgl>, END_RANGE <dbl>,
     ## #   END_AZI <chr>, END_LOCATI <chr>, LENGTH <dbl>, WIDTH <dbl>, F <int>,
     ## #   MAG <dbl>, FATALITIES <dbl>, INJURIES <dbl>, PROPDMG <dbl>,
@@ -118,16 +122,16 @@ The last 6 lines of the raw data set:
 tail(tbl_raw_data,6)
 ```
 
-    ## # A tibble: 6 × 37
+    ## # A tibble: 6 x 37
     ##   STATE__ BGN_DATE   BGN_TIME TIME_ZONE COUNTY COUNTYNAME STATE EVTYPE BGN_RANGE
     ##     <dbl> <chr>      <chr>    <chr>      <dbl> <chr>      <chr> <chr>      <dbl>
-    ## 1      47 11/28/201… 03:00:0… CST           21 TNZ001>00… TN    WINTE…         0
-    ## 2      56 11/30/201… 10:30:0… MST            7 WYZ007 - … WY    HIGH …         0
-    ## 3      30 11/10/201… 02:48:0… MST            9 MTZ009 - … MT    HIGH …         0
-    ## 4       2 11/8/2011… 02:58:0… AKS          213 AKZ213     AK    HIGH …         0
-    ## 5       2 11/9/2011… 10:21:0… AKS          202 AKZ202     AK    BLIZZ…         0
-    ## 6       1 11/28/201… 08:00:0… CST            6 ALZ006     AL    HEAVY…         0
-    ## # … with 28 more variables: BGN_AZI <chr>, BGN_LOCATI <chr>, END_DATE <chr>,
+    ## 1      47 11/28/201~ 03:00:0~ CST           21 TNZ001>00~ TN    WINTE~         0
+    ## 2      56 11/30/201~ 10:30:0~ MST            7 WYZ007 - ~ WY    HIGH ~         0
+    ## 3      30 11/10/201~ 02:48:0~ MST            9 MTZ009 - ~ MT    HIGH ~         0
+    ## 4       2 11/8/2011~ 02:58:0~ AKS          213 AKZ213     AK    HIGH ~         0
+    ## 5       2 11/9/2011~ 10:21:0~ AKS          202 AKZ202     AK    BLIZZ~         0
+    ## 6       1 11/28/201~ 08:00:0~ CST            6 ALZ006     AL    HEAVY~         0
+    ## # ... with 28 more variables: BGN_AZI <chr>, BGN_LOCATI <chr>, END_DATE <chr>,
     ## #   END_TIME <chr>, COUNTY_END <dbl>, COUNTYENDN <lgl>, END_RANGE <dbl>,
     ## #   END_AZI <chr>, END_LOCATI <chr>, LENGTH <dbl>, WIDTH <dbl>, F <int>,
     ## #   MAG <dbl>, FATALITIES <dbl>, INJURIES <dbl>, PROPDMG <dbl>,

@@ -2,13 +2,13 @@
 title: '`Course Project 2` Reproducible Research'
 author: '`r if(knitr::is_html_output()) {"&#x1f468;&#x1F3FB;&#x200d;&#x1f4bb; Anderson H Uyekita"} else {NULL}`'
 output:
+  github_document: default
   html_document:
     toc: true
     toc_depth: 4
     toc_float:
       collapsed: false
       smooth_scroll: true
-  github_document: default
 params:
   author: "Anderson H Uyekita"
   course: "Reproducible Research"
@@ -26,8 +26,8 @@ params:
   instructions: 'https://github.com/AndersonUyekita/reproducible-research_course-project-2/blob/master/instructions.md'
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,cache=TRUE,message=FALSE,warning=FALSE)
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,cache=TRUE,message=FALSE,warning=FALSE)
 library(rmarkdown)
 ```
 
@@ -45,16 +45,31 @@ library(rmarkdown)
 
 ### Sinopsis
 
-This report try to explore the storm database from [U.S. National Oceanic and Atmospheric Administration's (NOAA)](http://www.noaa.gov). This study has a brief analysis of: Economics consequences due to storm, hurricane, and similars and which kind of weather situations has the worse consequence to the population; Population Health due to those extreme weather situations and which disasters has the most impact in the population health. As a results, we realized the tornado is the most harmful and the flood has the greatest economic consequences to the population.
+Course Project 2 explore the storm database from [U.S. National Oceanic and Atmospheric Administration's (NOAA)](http://www.noaa.gov), and aims to develop a brief data analysis about Economics consequences due to storm, hurricane, and similar and which kind of weather situations has the worse consequence to the population; Population Health due to those extreme weather situations and which disasters has the most impact in the population health. As a results, we realized the tornado is the most harmful and the flood has the greatest economic consequences to the population.
 
 --------------------------------------------------------------------------------
 
-## Loading and Processing the Raw Data
+#### Requirements and Settings
+
+Requirements necessary to reproduce this analysis:
+
+```{r settings,echo=TRUE,warning=FALSE,message=FALSE,include=FALSE}
+# Loading libraries
+library(ggplot2)
+library(dplyr)
+
+# Force the R environment to use english settings
+Sys.setlocale("LC_ALL","English")
+```
+
+## 1. Data Processing
 
 From the [U.S. National Oceanic and Atmospheric Administration's (NOAA)][1] storm database we obtained data of storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage. We obtained the files between the years [1950 and 2011]([2]).
 
 [1]: http://www.noaa.gov
 [2]: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
+
+### 1.1. Loading
 
 ```{r,cache=TRUE}
 # 1. Create a data directory
@@ -69,19 +84,7 @@ if(!base::file.exists("./data/repdata_data_StormData.csv.bz2")){
 }
 ```
 
-### Required Packages and Settings 
-
-Requirements necessary to reproduce this analysis:
-```{r settings, echo = TRUE, warning=FALSE}
-# Loading libraries
-library(ggplot2)
-library(dplyr)
-
-# Force the R environment to use english settings
-Sys.setlocale("LC_ALL","English")
-```
-
-### Data Processing (Reading data from 1950 to 2011)
+### 1.2. Data Processing (Reading data from 1950 to 2011)
 
 First of all, we read the data from the raw `.csv` file included in the `bz2` archive. The data is a regular delimited file were fileds are delimited with dot comma and missing values are coded as blank fields.
 

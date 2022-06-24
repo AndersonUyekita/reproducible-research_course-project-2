@@ -21,6 +21,12 @@ params:
 always_allow_html: true
 ---
 
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,cache=TRUE,message=FALSE,warning=FALSE)
+library(rmarkdown)
+```
+
+
 `r if(!knitr::is_html_output()) {sprintf(fmt = "* &#x1f468;&#x1F3FB;&#x200d;&#x1f4bb; Author: %s", params$author)}`
 `r sprintf(fmt = "* &#x1f4da; Specialization: [%s](%s){target='_blank' rel='noopener'}", params$specialization, params$specialization_url)`
 `r sprintf(fmt = "* &#x1f4d6; Course: [%s](%s){target='_blank' rel='noopener'}", params$course, params$course_url)`
@@ -48,5 +54,20 @@ always_allow_html: true
 ### 3. Output and Input Details
 
 #### 3.1. Inputs
+
+```{r reading,echo=TRUE,cache=TRUE}
+raw_data <- read.csv(file = "./data/repdata_data_StormData.csv.bz2")
+
+# Convert the regular data frame into a dplyr table
+tbl_raw_data <- tbl_df(raw_data)
+```
+
+
+```{r}
+str(tbl_raw_data)
+
+unique(tbl_raw_data$STATE)
+```
+
 
 #### 3.2. Output
