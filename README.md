@@ -14,6 +14,8 @@
     -   🚦 Start: Friday, 24 June 2022
     -   🏁 Finish: Friday, 24 June 2022
 
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/AndersonUyekita/reproducible-research_course-project-2/master?urlpath=rstudio)
+
 ------------------------------------------------------------------------
 
 ## Impact of Weather Events on Public Health and Economics
@@ -36,17 +38,6 @@ population.
 
 Requirements necessary to reproduce this analysis:
 
-``` r
-# Loading libraries
-library(ggplot2)
-library(dplyr)
-
-# Force the R environment to use english settings
-Sys.setlocale("LC_ALL","English")
-```
-
-    ## [1] "LC_COLLATE=English_United States.1252;LC_CTYPE=English_United States.1252;LC_MONETARY=English_United States.1252;LC_NUMERIC=C;LC_TIME=English_United States.1252"
-
 ## 1. Data Processing
 
 From the [U.S. National Oceanic and Atmospheric Administration’s
@@ -56,7 +47,7 @@ occur, as well as estimates of any fatalities, injuries, and property
 damage. We obtained the files between the years [1950 and
 2011](%5B2%5D).
 
-### 1.1. Loading.
+### 1.1. Loading
 
 ``` r
 # 1. Create a data directory
