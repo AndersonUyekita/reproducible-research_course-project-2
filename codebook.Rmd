@@ -12,7 +12,7 @@ params:
   specialization_url: "https://www.coursera.org/specializations/data-science-foundations-r"
   instructor: "Roger D Peng"
   course_start: !r lubridate::ymd("2022/06/24")
-  course_finish: !r lubridate::today()
+  course_finish: !r lubridate::ymd("2022/06/28")
   week: "Week 4"
   slug: 'Week%204'
   rpubs: 'https://rpubs.com/AndersonUyekita/course-project-2_reproducible-research'
@@ -44,9 +44,6 @@ library(shiny)
 
 ## Codebook
 
-
-
-
 ### 1. Requirements
 
 ```{r,echo=TRUE,message=FALSE,warning=FALSE,include=FALSE}
@@ -58,62 +55,180 @@ library(magrittr)
 
 ### 2. Scripts
 
+Course Project 2 aims to create an Rmd file to create a **Literate Programming**. To do so, I have made the `README.Rmd` which merges text and code.
+
 #### 2.1. README
+
+
 
 ### 3. Output and Input Details
 
-Course Project 2 has only one input dataset from NOAA.
+Course Project 2 has only one input dataset from NOAA and there is no output file.
 
 #### 3.1. Inputs
 
-```{r loading-storm-data,echo=TRUE,cache=TRUE}
+The file from NOAA should be downloaded from:
+
+* Source: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
+* Download file size: 47 Mbytes
+
+##### 3.1.1. Raw dataset
+
+The content of `repdata_data_StormData.csv.bz2` is a `CSV` file compressed in a `bz2` file.
+
+```{r loading-storm-data,echo=FALSE,cache=TRUE}
 # Loading raw data.
 raw_data <- read.csv(file = "./data/repdata_data_StormData.csv.bz2")
 
 # Convert the regular data frame into a dplyr table
-tbl_raw_data <- tbl_df(raw_data)
+raw_data <- tbl_df(raw_data)
 ```
 
+* Object Size in R environment: `r pryr::object_size(raw_data)`
+* Number of Observations: `r format(x = dim(raw_data)[1], big.mark = ",")`
+* Number of Variables: `r dim(raw_data)[2]`
 
-```{r}
-pryr::object_size(tbl_raw_data)
+**Structure**
+
+```{r,echo=FALSE}
+str(raw_data)
 ```
 
+**Variables**
 
-
-```{r}
-dim(tbl_raw_data)
-
-str(tbl_raw_data)
+```{r,echo=FALSE}
+colnames(raw_data)
 ```
 
+**Summary**
 
+```{r,echo=FALSE}
+summary(raw_data)
+```
 
+Some variables have not been imported correctly, which will demand adjustments.
 
-```{r,results='asis'}
-for (i in colnames(tbl_raw_data)) {
-    p <- summary(tbl_raw_data[,i])
+##### 3.1.1. Tidy Dataset
+
+The tidy dataset is a subset of the raw dataset because the Course Project does not require using all variables. Initially, I selected the following variables as part of the tidy dataset. Later some variables will be bundled together and may be dropped.
+
+* `EVTYPE`: Event type;
+* `INJURIES`: Quantity of injuries;
+* `FATALITIES`: Quantity of fatalities;
+* `PROPDMG`: Amount in USD in Damages in properties;
+* `CROPDMG`: Amount in USD in Damages in crops;
+* `PROPDMGEXP`: The exponential in base 10 used to notate the PROPDMG, and;
+* `CROPDMGEXP`: The exponential in base 10 used to notate the CROPDMG.
+
+```{r subset, echo = FALSE,cache = TRUE}
+# Subsetting the raw dataset.
+df_subset <- select(raw_data,EVTYPE,INJURIES,FATALITIES,PROPDMG,PROPDMGEXP,CROPDMG,CROPDMGEXP)
+
+# Merging exponential column and value column.
+df_subset_2 <- df_subset %>%
     
-    cat("<h4>",i,"</h4>")
-    cat("<p>","Some stuff here just to make an easy test","</p>")
-    cat("<ul>")
-    for (j in p) {
-        cat("<li>",j,"</li>")}
-    cat("</ul>")
-    cat("<p>","More text here!!","</p>")
+    # Creating a new column PROPDMGABS
+    mutate(PROPDMGABS = case_when(
+        PROPDMGEXP %in% c("", "-",0) ~ PROPDMG * 1,
+        PROPDMGEXP %in% c(1)         ~ PROPDMG * 10,
+        PROPDMGEXP %in% c("H","h",2) ~ PROPDMG * 100,
+        PROPDMGEXP %in% c("K","k",3) ~ PROPDMG * 1000,
+        PROPDMGEXP %in% c(4)         ~ PROPDMG * 10000,
+        PROPDMGEXP %in% c(5)         ~ PROPDMG * 100000,
+        PROPDMGEXP %in% c("M","m",6) ~ PROPDMG * 1000000,
+        PROPDMGEXP %in% c(7)         ~ PROPDMG * 10000000,
+        PROPDMGEXP %in% c(8)         ~ PROPDMG * 100000000,
+        PROPDMGEXP %in% c("B","b",9) ~ PROPDMG * 1000000000)) %>%
     
-    cat("<code>")
-    cat(p)
-    cat("</code>")
+    # Creating a new column CROPDMGABS
+    mutate(CROPDMGABS = case_when(
+        CROPDMGEXP %in% c("?","", 0)   ~ CROPDMG * 1,
+        CROPDMGEXP %in% c("H", "h", 2) ~ CROPDMG * 100,
+        CROPDMGEXP %in% c("K", "k", 3) ~ CROPDMG * 1000,
+        CROPDMGEXP %in% c("M", "m", 6) ~ CROPDMG * 1000000,
+        CROPDMGEXP %in% c("B", "b", 9) ~ CROPDMG * 1000000000))
+
+# Standardizing the EVTYPE variable.
+df_subset_3 <- df_subset_2 %>%
     
-    cat("<code>")
-    cat(str(tbl_raw_data$LATITUDE))
-    cat("</code>")
+    # Converting all value to be UPPERCASE.
+    mutate(EVTYPE = stringr::str_to_upper(EVTYPE)) %>%
     
+    # Rules to aggregate events into a new variable called EVTYPE_2
+    mutate(EVTYPE_2 = case_when(
+        grepl(pattern = "*HURRICANE*|*TYPHOON*", x = EVTYPE) ~ "HURRICANE",
+        grepl(pattern = "*TORNADO*", x = EVTYPE) ~ "TORNADO",
+        grepl(pattern = "*THUNDERSTORM WIN*|*TSTM*|*FUNNEL CLOUD*|*FUNNEL*|*THUNDERSTORM*", x = EVTYPE) ~ "THUNDERSTORM WIND",
+        grepl(pattern = "*FLOOD*|*FLD*", x = EVTYPE) ~ "FLOOD",
+        grepl(pattern = "*HAIL*", x = EVTYPE) ~ "HAIL",
+        grepl(pattern = "*HIGH WIND*|*STRONG WIND*|WIND", x = EVTYPE) ~ "HIGH WIND",
+        grepl(pattern = "*FOREST FIRE*|*WILD FIRES*|*WILDFIRE*", x = EVTYPE) ~ "FOREST FIRE",
+        grepl(pattern = "*LIGHTNING*", x = EVTYPE) ~ "LIGHTNING",
+        grepl(pattern = "*HEAT*|*DROUGHT*|*EXCESSIVE HEAT*|*RECORD HIGH*|*WARMTH*|*UNSEASONABLY WARM*|*UNSEASONABLY DRY*|*TEMPERATURE RECORD*|*RECORD TEMPERATURE*|*DRY*", x = EVTYPE) ~ "EXCESSIVE HEAT",
+        grepl(pattern = "*WINTER WEATHER*|*FROST/FREEZE*|*EXTREME COLD*|*COLD*|*ICE*|*FREEZE*|*FROST*|*WINTRY MIX*|*LOW TEMPERATURE*", x = EVTYPE) ~ "EXCESSIVE COLD",
+        grepl(pattern = "*WINTER STORM*|*SLEET*|*SNOW*|*BLIZZARD*|*FREEZING RAIN*", x = EVTYPE) ~ "ICE STORM",
+        grepl(pattern = "*LANDSLIDE*|*MUDSLIDE*|*MUD SLIDE*", x = EVTYPE) ~ "LANDSLIDE",
+        grepl(pattern = "*AVALANCHE*", x = EVTYPE) ~ "AVALANCHE",
+        grepl(pattern = "*FOG*|*SMOKE*", x = EVTYPE) ~ "FOG",
+        grepl(pattern = "*DUST*", x = EVTYPE) ~ "DUST",
+        grepl(pattern = "*CURRENT*|*SURF*", x = EVTYPE) ~ "CURRENT",
+        grepl(pattern = "*TSUNAMI*", x = EVTYPE) ~ "TSUNAMI",
+        grepl(pattern = "*WATERSPOUT*", x = EVTYPE) ~ "WATERSPOUT")) %>%
     
-}
+    # Creating a OTHER type of event to aggregate minor events.
+    mutate(EVTYPE_2 = case_when(
+        is.na(EVTYPE_2) ~ "OTHER",
+        !is.na(EVTYPE_2) ~ EVTYPE_2)) %>%
+    
+    # Dropping EVTYPE because it is not necessary to carry it.
+    select(-EVTYPE) %>%
+    
+    # Renaming the EVTYPE_2 to be the new EVTYPE
+    mutate(EVTYPE = EVTYPE_2)
+
+# Creating the tidy dataset.
+df_tidy <- df_subset_3 %>%
+    
+    # Dropping the columns: PROPDMGEXP, PROPDMG, CROPDMGEXP, CROPDMG
+    select(-c(PROPDMGEXP, PROPDMG, CROPDMGEXP, CROPDMG)) %>%
+    
+    # Converting EVTYPE into Factor
+    mutate(EVTYPE = factor(EVTYPE_2)) %>%
+    
+    # Dropping
+    select(-EVTYPE_2)
+```
+
+After the data manipulation, the tidy dataset will have the following characteristics.
+
+* Object Size in R environment: `r pryr::object_size(df_tidy)`
+* Number of Observations: `r format(x = dim(df_tidy)[1], big.mark = ",")`
+* Number of Variables: `r dim(df_tidy)[2]`
+
+**Structure**
+
+```{r,echo=FALSE}
+str(df_tidy)
+```
+
+**Variables**
+
+```{r,echo=FALSE}
+colnames(df_tidy)
+```
+
+**Summary**
+
+```{r,echo=FALSE}
+summary(df_tidy)
 ```
 
 
 
 #### 3.2. Output
+
+Course Project 2 do not have any output.
+
+### 4. Publication
+
+Course Project 2 should be published in [Rpubs](https://rpubs.com/AndersonUyekita/course-project-2_reproducible-research).
