@@ -41,6 +41,9 @@ vignettes/*.pdf
 # remove html
 *.html
 
+*.tex
+*.log
+
 # Readings
 #
 # * https://linuxize.com/post/gitignore-ignoring-files-in-git/

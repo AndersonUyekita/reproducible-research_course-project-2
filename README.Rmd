@@ -24,6 +24,7 @@ params:
   project_repo: 'https://github.com/AndersonUyekita/reproducible-research_course-project-2'
   codebook: 'https://github.com/AndersonUyekita/reproducible-research_course-project-2/blob/master/codebook.md'
   instructions: 'https://github.com/AndersonUyekita/reproducible-research_course-project-2/blob/master/instructions.md'
+always_allow_html: yes
 ---
 
 ```{r setup,include=FALSE}
@@ -45,35 +46,71 @@ library(rmarkdown)
 
 ## Impact of Weather Events on Public Health and Economics
 
-### Sinopsis
+### Synopsis
 
-Course Project 2 explore the storm database from [U.S. National Oceanic and Atmospheric Administration's (NOAA)](http://www.noaa.gov), and aims to develop a brief data analysis about Economics consequences due to storm, hurricane, and similar and which kind of weather situations has the worse consequence to the population; Population Health due to those extreme weather situations and which disasters has the most impact in the population health. As a results, we realized the tornado is the most harmful and the flood has the greatest economic consequences to the population.
+According to the analysis performed to answer questions 1 and 2, the event type with the most harmful consequences is the `TORNADO` due to its high frequency and high average number of injuries and fatalities. On the other hand, `HURRICANE` and `TSUNAMI` do not have the highest number of harmful to the person. Also, both have a low probability of happening. From the given dataset, we have recorded 299 hurricanes and 20 tsunamis. On the other hand, there are more than 60 thousand tornadoes observations. Still, the average number of deaths and injuries is greater than the `TORNADO`, which we could interpret as both event types being more deadly.
+
+Lastly, `FLOOD` is the event type with the most significant economic impact in absolute values, which reach more than USD 180 billion (most of it is related to Properties Damages). On the other hand, weather problems such as `EXCESSIVE HEAT` and `EXCESSIVE COLD`c also significantly impact economic affairs. For example, the `EXCESSIVE HEAT` has generated more than USD 15.8 billion in Damages to Crops. Another critical point is HURRICANE does not happen regularly. Still, when it happens, it causes severe Damage to Properties and Crops. Based on the given dataset, hurricanes average generate USD 300 million of Damage for each event.
 
 --------------------------------------------------------------------------------
 
-#### Requirements and Settings
+## 1. Introduction
+
+Course Project 2 explores the database from [U.S. National Oceanic and Atmospheric Administration](s_1) (NOAA) and will be used to create a Reproducible Research following the instructions and reviews criteria stated by the Course instructor. This reproducible research should be hosted on [Rpubs][s_2] and will be evaluated in a peer-graded assignment. In addition, Course Project 2 also aims to evaluate the economic impacts and the consequences caused by storms, hurricanes, tornadoes, floods, and other environmental disasters.
+
+[s_1]: http://www.noaa.gov
+[s_2]: https://rpubs.com/AndersonUyekita/course-project-2_reproducible-research
+
+
+
+## 2. Objectivies [](){id="objectivies"}
+
+The objective of Course Project 2 aims to answer two questions:
+
+1. Across the United States, which types of events (as indicated in the `EVTYPE` variable) are most harmful with respect to population health?
+2. Across the United States, which types of events have the greatest economic consequences?
+
+The publication will present the answers to Course Project 2 questions in section 7. Results.
+
+## 3. Requirements and Settings
 
 Requirements necessary to reproduce this analysis:
 
-```{r settings,echo=TRUE,warning=FALSE,message=FALSE,include=FALSE}
+```{r libraries,echo=TRUE,warning=FALSE,message=FALSE,include=TRUE}
 # Loading libraries
 library(ggplot2)
-library(dplyr)
+library(tidyverse)
+library(rmarkdown)
+library(magrittr)
+library(kableExtra)
+library(DT)
+```
 
-# Force the R environment to use english settings
+Following the Course Project 2 instruction, it is necessary to set everything up in English.
+
+```{r language,echo=TRUE,warning=FALSE,message=FALSE,include=TRUE,cache=TRUE}
+# Force the R environment to use English settings
 Sys.setlocale("LC_ALL","English")
 ```
 
-## 1. Data Processing
+Finally, if you want to reproduce it on your computer, I have printed below the `sessionInfo()`, which will help you to load all packages used to perform this publication.
 
-From the [U.S. National Oceanic and Atmospheric Administration's (NOAA)][1] storm database we obtained data of storms and weather events in the United States, including when and where they occur, as well as estimates of any fatalities, injuries, and property damage. We obtained the files between the years [1950 and 2011]([2]).
+```{r session-info,echo=FALSE}
+sessionInfo()
+```
 
-[1]: http://www.noaa.gov
-[2]: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
+## 4. Data Processing
 
-### 1.1. Loading
+The data source used for this Course Project is from the [U.S. National Oceanic and Atmospheric Administration's (NOAA)][1_1], this dataset has recorded data about storms, tornados, floods, and other environmental and natural disasters between [1950 and 2011][1_2]. In addition, the dataset also includes the number of fatalities, injuries, and property damages.
 
-```{r,cache=TRUE}
+[1_1]: http://www.noaa.gov
+[1_2]: https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2
+
+### 4.1. Downloading
+
+Creating a data folder to store the dataset from NOAA.
+
+```{r downloading,cache=TRUE}
 # 1. Create a data directory
 if(!base::file.exists("data")) {
     base::dir.create("data")
@@ -86,137 +123,457 @@ if(!base::file.exists("./data/repdata_data_StormData.csv.bz2")){
 }
 ```
 
-### 1.2. Data Processing (Reading data from 1950 to 2011)
+### 4.2. Loading
 
-First of all, we read the data from the raw `.csv` file included in the `bz2` archive. The data is a regular delimited file were fileds are delimited with dot comma and missing values are coded as blank fields.
+Although the bz2 is a compressed file, the base system function `read.csv` can read it without uncompressing it.
 
-```{r reading, echo = TRUE,cache = TRUE}
-raw_data <- read.csv(file = "./data/repdata_data_StormData.csv.bz2")
+```{r loading,echo=TRUE,cache=TRUE}
+# Loading the raw dataset.
+raw_data <- utils::read.csv(file = "./data/repdata_data_StormData.csv.bz2")
+```
 
+Due to the facility to manage data frames using the `tidyverse` package, I have converted the `raw_data` object into a tibble class.
+
+```{r converting-df,cache=TRUE}
 # Convert the regular data frame into a dplyr table
-tbl_raw_data <- tbl_df(raw_data)
+raw_data <- dplyr::tbl_df(raw_data)
 ```
 
-After reading the bz2 file, the raw data has `r dim(tbl_raw_data)[1]` observations and `r dim(tbl_raw_data)[2]` column (variables), as can be seen by the dim() function.
-```{r dimensions, echo = TRUE,cache = TRUE}
-dim(tbl_raw_data)
+## 5. Data Assessing
+
+This section presents a few characteristics of the raw dataset, and does not have the intention of performing an exploratory data analysis. Instead, it is just a big picture of the raw dataset.
+
+### 5.1. Dimensions
+
+The raw dataset loaded from the bz2 file comprises 902.297 observations and 37 columns (variables), as it is possible to confirmed by the `dim()` function.
+
+```{r dimensions,echo=TRUE,cache=TRUE}
+# Checking the observations and varibles in raw dataset.
+base::dim(raw_data) # [Observations/rows] [variables/columns]
 ```
 
-The first 6 lines of the raw data set:
-```{r head_raw_data, echo = TRUE,cache = TRUE}
-head(tbl_raw_data,6)
+### 5.2. Head and Tail
+
+The first 5 lines of the raw data set:
+
+```{r head_raw_data,echo=TRUE}
+# Printing the first 5 rows.
+head(raw_data,5)
 ```
 
-The last 6 lines of the raw data set:
-```{r tail_raw_data, echo = TRUE,cache = TRUE}
-tail(tbl_raw_data,6)
+The last 5 lines of the raw data set:
+
+```{r tail_raw_data,echo=TRUE}
+# Printing the last 5 rows.
+tail(raw_data,5)
 ```
 
+### 5.3. Variables
 
-### Questions
+The dataset from NOAA has 37 variables, as seen from the `str` function.
 
-1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
-2. Across the United States, which types of events have the greatest economic consequences?
+```{r str,echo=TRUE}
+# Printing the variables' names.
+utils::str(raw_data)
+```
 
-### Subsetting the raw data
+The `read.csv()` function did not correctly import the following variables:
 
-This step is necessary to turn the study faster due to the large amount of informations on the raw data. The subset aim to gather only the data necessary to make the desired analysis. Thus, will be select the columns: EVTYPE, INJURIES, FATALITIES, PROPDMG, CROPDMG, PROPDMGEXP, and CROPDMGEXP.
+* `BGN_DATE`, `END_DATE`, `BGN_TIME` and `END_TIME` are `Date` class variables;
+
+### 5.3. `NA` Presence
+
+The variables LATITUDE and LATITUDE_E have the presence of `NA` observations.
+
+```{r missing-data,echo=TRUE}
+# Printing the summary of LATITUDE.
+summary(raw_data$LATITUDE)
+
+# Printing the summary of LATITUDE_E.
+summary(raw_data$LATITUDE_E)
+```
+
+All those `NA` observations are related to the `AMERICAN SAMOA` territory.
+
+```{r american-samoa,echo=TRUE}
+# Filtering the NA observations and finding the origins.
+raw_data %>% 
+    filter(is.na(LATITUDE) | is.na(LATITUDE_E)) %>% 
+    select(STATEOFFIC) %>%
+    unique()
+```
+
+### 5.4. Exponential Variable
+
+The `PROPDMGEXP` and `CROPDMGEXP` (Properties Exponential and Crop Exponential) variables store the base 10 exponential value of `PROPDMG` and `CROPDMG`, respectively. For this reason, it is necessary to combine `PROPDMG` and `PROPDMGEXP` into a single variable and do the same to `CROPDMG` and `CROPDMGEXP`.
+
+**Example**
+```
+[PROPDMG] * 10^[PROPDMGEXP]
+
+1.5 * 10^[B] = 1.5 billion USD
+```
+Therefore, it is essential to understand how the `PROPDMGEXP` and `CROPDMGEXP` were recorded.
+
+```{r exponential-investigation,echo=TRUE}
+# Printing the unique values to exponential to Properties.
+unique(raw_data$PROPDMGEXP)
+
+# Printing the unique values to exponential to Crops.
+unique(raw_data$CROPDMGEXP)
+```
+
+Finally, the notation is not uniform because sometimes they use Capital or Lowercase (e.g., `K` or `k`). In other cases, they use a number or insert a question mark (`?`) or plus/minus signal (e.g., `-` or `+`).
+
+* `PROPDMGEXP`
+    * `?`: Has 8 (eight) observations with this notation, none of the rows of `PROPDM` and `CROPDMG` has values;
+    * `+`: Has 5 (five) observations with this notation, and;
+    * `-`: Has 1 (one) observation with this notation and 1 (one) fatality. I will consider like "0".
+* `CROPDMGEXP`
+    * `?`: Has 7 (seven) observations with this notation, all those with `CROPDMG` as zero;
+    
+### 5.5. Event Type
+
+The raw dataset has 985 Event Types, the code below will present the first 10.
+
+```{r,echo=TRUE}
+
+raw_data %>%
+    group_by(EVTYPE) %>%
+    summarise(n = n()) %>%
+    arrange(desc(n)) %>%
+    head(10)
+```
+
+Unfortunately, there is no standardization, as seen in `TSTM WIND,` `THUNDERSTORM WIND,` and `THUNDERSTORM WINDS.` For this reason, it is necessary to adjust this variable, consolidating those events using a single notation.
+
+For further understanding of each variable, please visit the [codebook](https://github.com/AndersonUyekita/reproducible-research_course-project-2/blob/master/codebook.md).
+
+## 6. Data Manipulation
+
+Although I have observed problems in `BGN_DATE`, `END_DATE`, `BGN_TIME` and `END_TIME` for this Course Project 2, those variables will be not used for further analysis. For this reason, I will subset the raw dataset to work with part of it.
+
+### 6.1. Subsetting the raw data
+
+Based on the questions posted on 2. Objectivies, they are related to the most harmful concerning population health and its economic consequences. Thus, the raw dataset subset will select the following variables:
+
+* `EVTYPE`: Event type;
+* `INJURIES`: Quantity of injuries;
+* `FATALITIES`: Quantity of fatalities;
+* `PROPDMG`: Amount in USD in Damages in properties;
+* `CROPDMG`: Amount in USD in Damages in crops;
+* `PROPDMGEXP`: The exponential in base 10 used to notate the PROPDMG, and;
+* `CROPDMGEXP`: The exponential in base 10 used to notate the CROPDMG.
+
 ```{r subset, echo = TRUE,cache = TRUE}
-dataset <- select(tbl_raw_data,EVTYPE,INJURIES,FATALITIES,PROPDMG,PROPDMGEXP,CROPDMG,CROPDMGEXP)
+# Subsetting the raw dataset.
+df_subset <- select(raw_data,EVTYPE,INJURIES,FATALITIES,PROPDMG,PROPDMGEXP,CROPDMG,CROPDMGEXP)
 ```
 
-There are a weird notation to PROPDMG and CROPDMG. Each one need one more column to represent the information of losses (PROPDMGEXP and CROPDMGEXP). The index `H` represent Hundreds, `K` represent Thousand, `M` represent Millions and `B` represent Billions. Thus, those information will be aggregate into one column.
-```{r eliminate_exp_column, echo = TRUE}
-# The PROPDMGEXP is case sensitive.
-dataset <- mutate(dataset,PROPDMGEXP_num = 0 )
-dataset <- mutate(dataset,PROPDMGEXP_num = ifelse(test = ((PROPDMGEXP == "H") | (PROPDMGEXP == "h")), yes = 100, no = PROPDMGEXP_num ) )
-dataset <- mutate(dataset,PROPDMGEXP_num = ifelse(test = ((PROPDMGEXP == "K") | (PROPDMGEXP == "k")), yes = 1000, no = PROPDMGEXP_num ) )
-dataset <- mutate(dataset,PROPDMGEXP_num = ifelse(test = ((PROPDMGEXP == "M") | (PROPDMGEXP == "m")), yes = 1000000, no = PROPDMGEXP_num ) )
-dataset <- mutate(dataset,PROPDMGEXP_num = ifelse(test = ((PROPDMGEXP == "B") | (PROPDMGEXP == "b")), yes = 1000000000, no = PROPDMGEXP_num ) )
+### 6.2. Merging Damage and Exponential Variables
 
-# Substitution the incomplete information with the compounding of those two column (PROPDMGEXP and PROPDMG).
-dataset <- mutate(dataset,PROPDMG = PROPDMGEXP_num*PROPDMG)
+It is necessary to merge `PROPDMG` and `PROPDMGEXP` into a single variable, so I will create the `PROPDMGABS` using the following rules.
 
-# The CROPDMGEXP is case sensitive.
-dataset <- mutate(dataset,CROPDMGEXP_num = 0 )
-dataset <- mutate(dataset,CROPDMGEXP_num = ifelse(test = ((CROPDMGEXP == "H") | (CROPDMGEXP == "h")), yes = 100, no = CROPDMGEXP_num ) )
-dataset <- mutate(dataset,CROPDMGEXP_num = ifelse(test = ((CROPDMGEXP == "K") | (CROPDMGEXP == "k")), yes = 1000, no = CROPDMGEXP_num ) )
-dataset <- mutate(dataset,CROPDMGEXP_num = ifelse(test = ((CROPDMGEXP == "M") | (CROPDMGEXP == "m")), yes = 1000000, no = CROPDMGEXP_num ) )
-dataset <- mutate(dataset,CROPDMGEXP_num = ifelse(test = ((CROPDMGEXP == "B") | (CROPDMGEXP == "b")), yes = 1000000000, no = CROPDMGEXP_num ) )
+* All `0`, ` ` and `-` will be converted into 1;
+* All `1` will be converted into 10;
+* All `H`, `h` and `2` will be converted into 100;
+* All `K`, `k` and `3` will be converted into 1000;
+* All `4` will be converted into 10000;
+* All `5` will be converted into 100000;
+* All `M`, `m` and `6` will be converted into 1000000;
+* All `7` will be converted into 10000000;
+* All `8` will be converted into 100000000;
+* All `B`, `b` and `9` will be converted into 1000000000;
 
-# Substitution the incomplete information with the compounding of those two column (CROPDMGEXP and CROPDMG).
-dataset <- mutate(dataset,CROPDMG = CROPDMGEXP_num*CROPDMG)
+Following the same principles, I will merge `CROPDMG` and `CROPDMG` to create `CROPDMGABS`:
 
-# Subsetting the dataset to show only the necessary column.
-tidy_dataset <- select(dataset,EVTYPE,INJURIES,FATALITIES,PROPDMG,CROPDMG)
+* All `0`, ` ` and `?` will be converted into 1;
+* All `H`, `h` and `2` will be converted into 100;
+* All `K`, `k` and `3` will be converted into 1000;
+* All `M`, `m` and `6` will be converted into 1000000;
+* All `B`, `b` and `9` will be converted into 1000000000;
+
+The `PROPDMGABS` and `CROPDMGABS` will be in charge of storing the absolute values of Properties Damages and Crops Damages.
+
+```{r exponential-manipulation,echo=TRUE}
+# Merging exponential column and value column.
+df_subset_2 <- df_subset %>%
+    
+    # Creating a new column PROPDMGABS
+    mutate(PROPDMGABS = case_when(
+        PROPDMGEXP %in% c("", "-",0) ~ PROPDMG * 1,
+        PROPDMGEXP %in% c(1)         ~ PROPDMG * 10,
+        PROPDMGEXP %in% c("H","h",2) ~ PROPDMG * 100,
+        PROPDMGEXP %in% c("K","k",3) ~ PROPDMG * 1000,
+        PROPDMGEXP %in% c(4)         ~ PROPDMG * 10000,
+        PROPDMGEXP %in% c(5)         ~ PROPDMG * 100000,
+        PROPDMGEXP %in% c("M","m",6) ~ PROPDMG * 1000000,
+        PROPDMGEXP %in% c(7)         ~ PROPDMG * 10000000,
+        PROPDMGEXP %in% c(8)         ~ PROPDMG * 100000000,
+        PROPDMGEXP %in% c("B","b",9) ~ PROPDMG * 1000000000)) %>%
+    
+    # Creating a new column CROPDMGABS
+    mutate(CROPDMGABS = case_when(
+        CROPDMGEXP %in% c("?","", 0)   ~ CROPDMG * 1,
+        CROPDMGEXP %in% c("H", "h", 2) ~ CROPDMG * 100,
+        CROPDMGEXP %in% c("K", "k", 3) ~ CROPDMG * 1000,
+        CROPDMGEXP %in% c("M", "m", 6) ~ CROPDMG * 1000000,
+        CROPDMGEXP %in% c("B", "b", 9) ~ CROPDMG * 1000000000)) 
 ```
 
-### Results
+### 6.3. Uniforming Event Types
+
+The EVTYPE variable is not tidy because there are a lot of classifications with the same meaning but different notations. Hence, I will standardize this variable following the rules inside of the next chunk.
+
+```{r fixing-evtype,echo=TRUE}
+# Standardizing the EVTYPE variable.
+df_subset_3 <- df_subset_2 %>%
+    
+    # Converting all value to be UPPERCASE.
+    mutate(EVTYPE = stringr::str_to_upper(EVTYPE)) %>%
+    
+    # Rules to aggregate events into a new variable called EVTYPE_2
+    mutate(EVTYPE_2 = case_when(
+        grepl(pattern = "*HURRICANE*|*TYPHOON*", x = EVTYPE) ~ "HURRICANE",
+        grepl(pattern = "*TORNADO*", x = EVTYPE) ~ "TORNADO",
+        grepl(pattern = "*THUNDERSTORM WIN*|*TSTM*|*FUNNEL CLOUD*|*FUNNEL*|*THUNDERSTORM*", x = EVTYPE) ~ "THUNDERSTORM WIND",
+        grepl(pattern = "*FLOOD*|*FLD*", x = EVTYPE) ~ "FLOOD",
+        grepl(pattern = "*HAIL*", x = EVTYPE) ~ "HAIL",
+        grepl(pattern = "*HIGH WIND*|*STRONG WIND*|WIND", x = EVTYPE) ~ "HIGH WIND",
+        grepl(pattern = "*FOREST FIRE*|*WILD FIRES*|*WILDFIRE*", x = EVTYPE) ~ "FOREST FIRE",
+        grepl(pattern = "*LIGHTNING*", x = EVTYPE) ~ "LIGHTNING",
+        grepl(pattern = "*HEAT*|*DROUGHT*|*EXCESSIVE HEAT*|*RECORD HIGH*|*WARMTH*|*UNSEASONABLY WARM*|*UNSEASONABLY DRY*|*TEMPERATURE RECORD*|*RECORD TEMPERATURE*|*DRY*", x = EVTYPE) ~ "EXCESSIVE HEAT",
+        grepl(pattern = "*WINTER WEATHER*|*FROST/FREEZE*|*EXTREME COLD*|*COLD*|*ICE*|*FREEZE*|*FROST*|*WINTRY MIX*|*LOW TEMPERATURE*", x = EVTYPE) ~ "EXCESSIVE COLD",
+        grepl(pattern = "*WINTER STORM*|*SLEET*|*SNOW*|*BLIZZARD*|*FREEZING RAIN*", x = EVTYPE) ~ "ICE STORM",
+        grepl(pattern = "*LANDSLIDE*|*MUDSLIDE*|*MUD SLIDE*", x = EVTYPE) ~ "LANDSLIDE",
+        grepl(pattern = "*AVALANCHE*", x = EVTYPE) ~ "AVALANCHE",
+        grepl(pattern = "*FOG*|*SMOKE*", x = EVTYPE) ~ "FOG",
+        grepl(pattern = "*DUST*", x = EVTYPE) ~ "DUST",
+        grepl(pattern = "*CURRENT*|*SURF*", x = EVTYPE) ~ "CURRENT",
+        grepl(pattern = "*TSUNAMI*", x = EVTYPE) ~ "TSUNAMI",
+        grepl(pattern = "*WATERSPOUT*", x = EVTYPE) ~ "WATERSPOUT")) %>%
+    
+    # Creating a OTHER type of event to aggregate minor events.
+    mutate(EVTYPE_2 = case_when(
+        is.na(EVTYPE_2) ~ "OTHER",
+        !is.na(EVTYPE_2) ~ EVTYPE_2)) %>%
+    
+    # Dropping EVTYPE because it is not necessary to carry it.
+    select(-EVTYPE) %>%
+    
+    # Renaming the EVTYPE_2 to be the new EVTYPE
+    mutate(EVTYPE = EVTYPE_2)
+```
+
+After the standardization, the new `EVTYPE` has 19 categories.
+
+```{r evtype-2,echo=TRUE}
+# Printing the standards of Event Type
+unique(df_subset_3$EVTYPE)
+```
+
+### 6.3. Tidy dataset
+
+The tidy dataset will be composite by the `EVTYPE`, `INJURIES`, `FATALITIES`, `PROPDMGABS` and `CROPDMGABS`.
+
+```{r,echo=TRUE}
+# Creating the tidy dataset.
+df_tidy <- df_subset_3 %>%
+    
+    # Dropping the columns: PROPDMGEXP, PROPDMG, CROPDMGEXP, CROPDMG
+    select(-c(PROPDMGEXP, PROPDMG, CROPDMGEXP, CROPDMG))
+```
+
+## 7. Results [](){id="results"}
 
 #### Question 1
-* Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
 
-*Answer*
+> Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
 
-First of all, we need to aggregate `INJURIES` and `FATALITIES` to help us to discern which `EVTYPE` is the most harmful to the population health.
-```{r aggregate_by_EVTYPE, echo = TRUE}
-# Function aggregate() used to compounding variables.
-EVTYPE_harmful <- aggregate( cbind(INJURIES,FATALITIES,INJURIES+FATALITIES) ~ EVTYPE, data = tidy_dataset, FUN = sum)
+**Answer**
 
-# Renaming column to keep the dataset organized.
-colnames(EVTYPE_harmful) <- c('EVTYPE','INJURIES','FATALITIES','INJURIES_FATALITIES')
+I will define **harmful** as the summation of `INJURIES` and `FATALITIES` of each `EVTYPE`. Therefore, it is necessary to create a new variable, the so-called `HARMFUL`, to store these aggregation. I also will create 3 new variables to store the average of injuries (`INJURIES_AVG`), fatalities (`FATALITIES_AVG`), and harmful (`HARMFUL_AVG`) based on the number of observations (`QTY`) of each `EVTYPE`.
+
+```{r calc-harmful-and-avg,echo=TRUE}
+# This subset will creates averages of each EVTYPE and add the Harmful variable.
+df_tidy_q1 <- df_tidy %>%
+    
+    # Creating the HARMFUL variable.
+    mutate(HARMFUL = INJURIES + FATALITIES) %>%
+    
+    # Aggregate everything using EVTYPE.
+    group_by(EVTYPE) %>%
+    
+    # Summarizes the data using the group by EVTYPE.
+    summarise(HARMFUL = sum(HARMFUL),
+              QTY = n(),
+              FATALITIES = sum(FATALITIES),
+              INJURIES = sum(INJURIES)) %>%
+    
+    # Arrange to be descendant.
+    arrange(desc(HARMFUL)) %>%
+    
+    # Adding averages variables.
+    mutate(HARMFUL_AVG = HARMFUL/QTY,
+           FATALITIES_AVG = FATALITIES/QTY,
+           INJURIES_AVG = INJURIES/QTY)
 ```
 
-Assuming a proper register of `EVTYPES` without any typos and any other problem. The most harmful is the TORNADO with 91346 injuries and 5633 fatalities over the dataset period. The table bellow shows the first 6 harmful `EVTYPES`.
-```{r sorting, echo = TRUE}
-attach(EVTYPE_harmful)
-head(EVTYPE_harmful[order(-INJURIES_FATALITIES),],6)
+The adjusted dataset will be shown below.
+
+```{r df-tidy-q1,echo=TRUE}
+# Printing the 
+head(df_tidy_q1, 19) %>% kableExtra::kbl() %>% kableExtra::kable_styling()
 ```
 
-Graphically, the most harmful `EVTYPES`.
-```{r graf_1, echo = TRUE}
-# Subset of first 6 most harmful EVTYPES
-bar_plot <- head(EVTYPE_harmful[order(-INJURIES_FATALITIES),],6)
+Based on the `df_tidy_q1`, let's visualize it in a graph.
 
-# Barplot using ggplot package
-ggplot(bar_plot,aes(x = EVTYPE,y = INJURIES_FATALITIES,group = 1))+
-geom_bar(stat = "identity")+
-ylab("Sum of Fatalities and Injuries between 1950 - 2011") +
-xlab("Event") +
-ggtitle ("Total fatalities per event")
+```{r plot-1,echo=TRUE}
+# Creating a auxiliary dataset to plot 1.
+# It will be necessary to put the dataset in such a way to be helpful to ggplot2.
+rbind(
+    
+    # Gathering the dataset to have absolute data in rows.
+    df_tidy_q1 %>%
+    select(EVTYPE, FATALITIES, INJURIES) %>%
+    mutate(EVTYPE = factor(EVTYPE, levels = EVTYPE)) %>%
+    pivot_longer(cols = 2:3, names_to = "HARMFUL", values_to = "VALUES") %>%
+    mutate(VALUE_TYPE = factor("ABSOLUTE")),
+    
+    # Gathering the dataset to average have average data in rows.
+    df_tidy_q1 %>%
+    arrange(desc(HARMFUL_AVG)) %>%
+    select(EVTYPE, FATALITIES_AVG, INJURIES_AVG) %>%
+    mutate(EVTYPE = factor(EVTYPE, levels = EVTYPE)) %>%
+    pivot_longer(cols = 2:3, names_to = "HARMFUL", values_to = "VALUES")%>%
+    mutate(VALUE_TYPE = factor("AVERAGE"))) %>%
+    
+    # Plotting the graph using GGPLOT2
+    ggplot(aes(fill = HARMFUL, y = VALUES, x = EVTYPE)) + 
+    
+    # Defining a stacked barplot.
+    geom_bar(position = "stack", stat = "identity") +
+    
+    # Defining the graph title.
+    ggplot2::labs(title = "Most Harmful Event Type") + 
+    
+    # Defining the x-axis label
+    ggplot2::xlab("Event Type") +
+    
+    # Defining the y-axis label
+    ggplot2::ylab("Health Harmful") +
+    
+    # Adjusting the x-axis to be 90 degrees.
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+          legend.position = "right",
+          plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5)) +
+    
+    # Removing the legend title.
+        ggplot2::guides(fill = ggplot2::guide_legend(title = "")) + 
+    
+    # Creating facet to show absolute and average values.
+    facet_grid(rows = vars(VALUE_TYPE), scales = "free")
 ```
 
+In term of **absolute value**, there are no doubt that `TORNADO` events are the most harmful to health due to the high frequency of tornadoes. The number of tornadoes observed in the dataset is more than 60 thousand (between 1950 and 2011), which results in 5.661 `FATALITIES`, 91.407 `INJURIES`, and 97.068 health `HARMFUL`.
+
+However, whether you analyze it in terms of **average**, in that case, the `TSUNAMI` event type has the highest averages of INJURIES and FATALITIES, resulting in increased health HARMFUL. The meaning of seeing the average is to identify the most deadly event type.
 
 #### Question 2
-2. Across the United States, which types of events have the greatest economic consequences?
 
-*Answer*
+> Across the United States, which types of events have the greatest economic consequences?
 
-First of all, we need to aggregate `PROPDMG` and `CROPDMG` to help us to discern which `EVTYPE` has the the greatest economic consequences.
-```{r aggregate_by_EVTYPE2, echo = TRUE}
-# Function aggregate() used to compounding variables.
-EVTYPE_DMG <- aggregate( cbind(PROPDMG,CROPDMG,PROPDMG + CROPDMG) ~ EVTYPE, data = dataset, FUN = sum)
+**Answer**
 
-# Renaming column to keep the dataset organized.
-colnames(EVTYPE_DMG) <- c('EVTYPE','PROPDMG','CROPDMG','PROPDMG_CROPDMG')
+Following the same principles used in Question 1, I will define as **economic consequence** the sum of Properties Damages (`PROPDMGABS`) and Crop Damages (`CROPDMGABS`). Also, I will compare the average of `PROPDMGABS` and `CROPDMGABS` to analyze which one has the higher economic impact.
+
+```{r calc-event-expenses,echo=TRUE}
+# This subset will creates averages of each EVTYPE and add the Harmful variable.
+df_tidy_q2 <- df_tidy %>%
+    
+    # Creating the HARMFUL variable.
+    mutate(EXPENSES = PROPDMGABS + CROPDMGABS) %>%
+    
+    # Aggregate everything using EVTYPE.
+    group_by(EVTYPE) %>%
+    
+    # Summarizes the data using the group by EVTYPE.
+    summarise(EXPENSES = sum(EXPENSES, na.rm = TRUE),
+              QTY = n(),
+              PROPDMGABS = sum(PROPDMGABS, na.rm = TRUE),
+              CROPDMGABS = sum(CROPDMGABS, na.rm = TRUE)) %>%
+    
+    # Arrange to be descendant.
+    arrange(desc(EXPENSES)) %>%
+    
+    # Adding averages variables.
+    mutate(EXPENSES_AVG = EXPENSES/QTY,
+           PROPDMGABS_AVG = PROPDMGABS/QTY,
+           CROPDMGABS_AVG = CROPDMGABS/QTY) 
 ```
 
+The adjusted dataset will be shown below.
 
-Assuming a proper register of `EVTYPES` without any typos and any other problem. The `EVTYPES` that has the the greatest economic consequences is the `FLOOD` with 150,319,678,250 of dollars over the dataset period. The table bellow shows the results of others `EVTYPES`.
-```{r sorting2, echo = TRUE}
-attach(EVTYPE_DMG)
-head(EVTYPE_DMG[order(-PROPDMG_CROPDMG),],6)
+```{r df-tidy-q2,echo=TRUE}
+# Printing the 
+head(df_tidy_q2, 19) %>% kableExtra::kbl() %>% kableExtra::kable_styling()
 ```
 
-Graphically, the `EVTYPES` with the the greatest economic consequences.
-```{r graf_2, echo = TRUE}
-# Subset of first 6 most harmful EVTYPES
-bar_plot2 <- head(EVTYPE_DMG[order(-PROPDMG_CROPDMG),],6)
+Based on the `df_tidy_q2`, let's visualize it in a graph.
 
-# Barplot using ggplot package
-ggplot(bar_plot2,aes(x = EVTYPE,y = PROPDMG_CROPDMG,group = 1))+
-geom_bar(stat = "identity")+
-ylab("Sum of Economic Consequences between 1950 - 2011") +
-xlab("Event") +
-ggtitle ("Total fatalities per event")
+```{r plot-2,echo=TRUE}
+# Creating a auxiliary dataset to plot 1.
+# It will be necessary to put the dataset in such a way to be helpful to ggplot2.
+rbind(
+    
+    # Gathering the dataset to have absolute data in rows.
+    df_tidy_q2 %>%
+    select(EVTYPE, PROPDMGABS, CROPDMGABS) %>%
+    mutate(EVTYPE = factor(EVTYPE, levels = EVTYPE),
+           PROPDMGABS = PROPDMGABS/1000000,
+           CROPDMGABS = CROPDMGABS/1000000) %>%
+    pivot_longer(cols = 2:3, names_to = "EXPENSES", values_to = "VALUES") %>%
+    mutate(VALUE_TYPE = factor("ABSOLUTE")),
+    
+    # Gathering the dataset to average have average data in rows.
+    df_tidy_q2 %>%
+    arrange(desc(EXPENSES_AVG)) %>%
+    select(EVTYPE, PROPDMGABS_AVG, CROPDMGABS_AVG) %>%
+    mutate(EVTYPE = factor(EVTYPE, levels = EVTYPE),
+           PROPDMGABS_AVG = PROPDMGABS_AVG/1000000,
+           CROPDMGABS_AVG = CROPDMGABS_AVG/1000000) %>%
+    pivot_longer(cols = 2:3, names_to = "EXPENSES", values_to = "VALUES")%>%
+    mutate(VALUE_TYPE = factor("AVERAGE"))) %>%
+    
+    # Plotting the graph using GGPLOT2
+    ggplot(aes(fill = EXPENSES, y = VALUES, x = EVTYPE)) + 
+    
+    # Defining a stacked barplot.
+    geom_bar(position = "stack", stat = "identity") +
+    
+    # Defining the graph title.
+    ggplot2::labs(title = "Economic Consequence of Event Types") + 
+    
+    # Defining the x-axis label
+    ggplot2::xlab("Event Type") +
+    
+    # Defining the y-axis label
+    ggplot2::ylab("Economic Impact [Million USD]") +
+    
+    # Adjusting the x-axis to be 90 degrees.
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+          legend.position = "right",
+          plot.title = element_text(hjust = 0.5),
+          plot.subtitle = element_text(hjust = 0.5)) +
+    
+    # Removing the legend title.
+        ggplot2::guides(fill = ggplot2::guide_legend(title = "")) + 
+    
+    # Creating facet to show absolute and average values.
+    facet_grid(rows = vars(VALUE_TYPE), scales = "free")
 ```
+
+`FLOOD` is the event with the greatest economic consequence (most of it related to Properties Damages). Between 1950 and 2011, it causes Damages to Properties and Crops that reach more than USD 180 billion. However, the `HURRICANE` is one event type with the highest average in terms of damage. On average, one hurricane's outcome is around USD 300 million in damages.
+
+Finally, it is also important to point out that `EXCESSIVE HEAT` is the worst event related to Crops, which is almost USD 15.8 billion in Damages to Crops.

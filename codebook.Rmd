@@ -3,6 +3,7 @@ title: '`Course Project 2` Reproducible Research'
 author: '`r if(knitr::is_html_output()) {"&#x1f468;&#x1F3FB;&#x200d;&#x1f4bb; Anderson H Uyekita"} else {NULL}`'
 output:
   github_document: default
+  html_document:
 params:
   author: "Anderson H Uyekita"
   course: "Reproducible Research"
@@ -24,6 +25,7 @@ always_allow_html: true
 ```{r setup,include=FALSE}
 knitr::opts_chunk$set(echo=TRUE,cache=TRUE,message=FALSE,warning=FALSE)
 library(rmarkdown)
+library(shiny)
 ```
 
 
@@ -47,15 +49,25 @@ library(rmarkdown)
 
 ### 1. Requirements
 
+```{r,echo=TRUE,message=FALSE,warning=FALSE,include=FALSE}
+library(tidyverse)
+library(pryr)
+library(kableExtra)
+library(magrittr)
+```
+
 ### 2. Scripts
 
 #### 2.1. README
 
 ### 3. Output and Input Details
 
+Course Project 2 has only one input dataset from NOAA.
+
 #### 3.1. Inputs
 
-```{r reading,echo=TRUE,cache=TRUE}
+```{r loading-storm-data,echo=TRUE,cache=TRUE}
+# Loading raw data.
 raw_data <- read.csv(file = "./data/repdata_data_StormData.csv.bz2")
 
 # Convert the regular data frame into a dplyr table
@@ -64,10 +76,44 @@ tbl_raw_data <- tbl_df(raw_data)
 
 
 ```{r}
-str(tbl_raw_data)
-
-unique(tbl_raw_data$STATE)
+pryr::object_size(tbl_raw_data)
 ```
+
+
+
+```{r}
+dim(tbl_raw_data)
+
+str(tbl_raw_data)
+```
+
+
+
+
+```{r,results='asis'}
+for (i in colnames(tbl_raw_data)) {
+    p <- summary(tbl_raw_data[,i])
+    
+    cat("<h4>",i,"</h4>")
+    cat("<p>","Some stuff here just to make an easy test","</p>")
+    cat("<ul>")
+    for (j in p) {
+        cat("<li>",j,"</li>")}
+    cat("</ul>")
+    cat("<p>","More text here!!","</p>")
+    
+    cat("<code>")
+    cat(p)
+    cat("</code>")
+    
+    cat("<code>")
+    cat(str(tbl_raw_data$LATITUDE))
+    cat("</code>")
+    
+    
+}
+```
+
 
 
 #### 3.2. Output
