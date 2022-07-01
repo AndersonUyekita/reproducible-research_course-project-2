@@ -17,7 +17,7 @@ params:
   specialization_url: "https://www.coursera.org/specializations/data-science-foundations-r"
   instructor: "Roger D Peng"
   course_start: !r lubridate::ymd("2022/06/24")
-  course_finish: !r lubridate::today()
+  course_finish: !r lubridate::ymd("2022/06/28")
   week: "Week 4"
   slug: 'Week%204'
   rpubs: 'https://rpubs.com/AndersonUyekita/course-project-2_reproducible-research'
@@ -40,11 +40,11 @@ library(rmarkdown)
     `r sprintf(fmt = "* &#x1F6A6; Start: %s", format(params$course_start, "%A, %d %B %Y"))`
     `r sprintf(fmt = "* &#x1F3C1; Finish: %s", format(params$course_finish, "%A, %d %B %Y"))`
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/AndersonUyekita/reproducible-research_course-project-2/master?urlpath=rstudio)
-
 --------------------------------------------------------------------------------
 
 ## Impact of Weather Events on Public Health and Economics
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/AndersonUyekita/reproducible-research_course-project-2/master?urlpath=rstudio)
 
 ### Synopsis
 

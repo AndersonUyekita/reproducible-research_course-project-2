@@ -14,11 +14,11 @@
     -   🚦 Start: Friday, 24 June 2022
     -   🏁 Finish: Tuesday, 28 June 2022
 
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/AndersonUyekita/reproducible-research_course-project-2/master?urlpath=rstudio)
-
 ------------------------------------------------------------------------
 
 ## Impact of Weather Events on Public Health and Economics
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/AndersonUyekita/reproducible-research_course-project-2/master?urlpath=rstudio)
 
 ### Synopsis
 
